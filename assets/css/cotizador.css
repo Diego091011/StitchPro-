@@ -1,0 +1,8 @@
+.two{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.row{display:grid;grid-template-columns:1fr 90px 40px;gap:8px;margin-bottom:8px}
+.res{display:grid;gap:10px}.res>div{display:flex;justify-content:space-between;color:var(--mut)}
+.res .rate{font-size:.78rem;border-top:1px dashed var(--glass-b);border-bottom:1px dashed var(--glass-b);padding:8px 0;justify-content:center}
+.res .tot{color:var(--tx);font-size:1.6rem;font-weight:800;border-top:1px solid var(--glass-b);padding-top:12px}
+.res .tot span:last-child{color:var(--ok);text-shadow:0 0 18px rgba(34,229,143,.4)}
+.actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+.editing{font-size:.82rem;color:var(--ok);margin-bottom:12px}

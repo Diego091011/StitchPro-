@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StitchPro · Cotizador</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/layout.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/cotizador.css">
+</head>
+<body>
+<main id="page">
+  <div class="bar"><h2>Cotizador</h2><button class="btn ghost" id="c-new">Nueva cotización</button></div>
+  <div class="grid two">
+    <section class="card">
+      <div class="editing" id="c-editing" hidden></div>
+      <div class="form">
+        <label class="full">Nombre del servicio<input id="c-nombre" placeholder="Ej. Bota de pantalón"></label>
+        <label>Tipo<select id="c-tipo"><option value="arreglo_rapido">Arreglo rápido</option><option value="confeccion">Confección</option></select></label>
+        <label>Minutos estimados<input id="c-min" type="number" min="0" step="1" value="30"></label>
+        <label>Margen de ganancia %<input id="c-margen" type="number" min="0" step="any" value="30"></label>
+      </div>
+      <h3 style="margin:20px 0 10px">Insumos</h3>
+      <div id="c-rows"></div>
+      <button class="btn ghost sm" id="c-add">+ Agregar insumo</button>
+      <p class="hint" id="c-empty" style="margin-top:10px" hidden>Aún no tienes insumos: créalos en <a class="lnk" href="inventario.html">Inventario</a>.</p>
+    </section>
+    <section class="card">
+      <div class="res" id="c-res"></div>
+      <div class="actions"><button class="btn green" id="c-save">Guardar servicio</button></div>
+    </section>
+  </div>
+  <section class="card" style="margin-top:16px">
+    <div class="bar"><div><h3>Servicios guardados</h3><p>Cárgalos para reutilizarlos o ajustarlos</p></div></div>
+    <div class="tbl-w" id="c-list"></div>
+  </section>
+</main>
+<script type="module" src="js/pages/cotizador.js"></script>
+</body>
+</html>

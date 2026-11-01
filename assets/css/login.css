@@ -1,0 +1,8 @@
+body{display:grid;place-items:center;padding:20px}
+.login{width:min(400px,100%);display:grid;gap:16px;padding:28px}
+.tabs{display:flex;background:rgba(0,0,0,.35);border:1px solid var(--glass-b);border-radius:12px;padding:4px}
+.tabs button{flex:1;background:none;border:0;color:var(--tx);padding:9px;border-radius:9px;font:inherit;cursor:pointer}
+.tabs button.on{background:var(--grad)}
+.msg{font-size:.85rem;padding:10px 12px;border-radius:10px;display:none}
+.msg.err{display:block;background:rgba(248,113,113,.12);color:var(--bad)}
+.msg.ok{display:block;background:rgba(34,229,143,.12);color:var(--ok)}

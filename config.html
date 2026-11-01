@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StitchPro · Configuración</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/layout.css">
+</head>
+<body>
+<main id="page">
+  <h2>Costos base</h2>
+  <form class="card form" id="form" style="max-width:640px">
+    <label>Sueldo base mensual<input name="sueldo_base" type="number" min="0" step="any" required></label>
+    <label>Horas trabajadas al mes<input name="horas_mes" type="number" min="1" required></label>
+    <label>Precio kWh<input name="precio_kwh" type="number" min="0" step="any" required></label>
+    <label>Potencia máquina (W)<input name="potencia_maquina_w" type="number" min="0" required></label>
+    <div class="full"><button class="btn green">Guardar</button> <a class="btn ghost" href="dashboard.html">Volver al dashboard</a></div>
+  </form>
+</main>
+<script type="module" src="js/pages/config.js"></script>
+</body>
+</html>

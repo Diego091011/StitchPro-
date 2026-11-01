@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StitchPro · Dashboard</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/layout.css">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body>
+<main id="page">
+  <div class="grid kpis" id="kpis"></div>
+
+  <section class="card">
+    <div class="bar">
+      <div class="ttl"><svg class="i big"><use href="#i-cut"/></svg><div><h3>Calculadora de Cotización Rápida</h3><p>Ingresa los detalles y obtén un precio estimado al instante</p></div></div>
+      <div class="seg"><button data-tipo="arreglo_rapido" class="on">Arreglo</button><button data-tipo="confeccion">Prenda Nueva</button></div>
+    </div>
+    <div class="calc-g">
+      <div class="form">
+        <label>Tipo de Prenda<select id="dq-prenda"></select></label>
+        <label>Tipo de Alteración<select id="dq-alt"></select></label>
+        <label>Horas de Trabajo <span id="dq-hlbl" class="hl">1.5 h</span><input id="dq-horas" type="range" min="0.25" max="12" step="0.25" value="1.5"></label>
+        <label>Margen de ganancia %<input id="dq-margen" type="number" min="0" value="30"></label>
+        <div class="full"><label>Materiales (clic para incluir)</label><div id="dq-mats" class="chips"></div></div>
+        <p class="hint full" id="dq-hint"></p>
+      </div>
+      <div class="price"><small>Precio Final</small><b id="dq-precio">—</b><button class="btn green" id="dq-calc">Calcular</button><button class="btn ghost sm" id="dq-save">Guardar servicio</button></div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <div class="bar"><div><h3>Órdenes Recientes</h3><p>Últimas órdenes registradas en tu taller</p></div></div>
+    <div class="tbl-w" id="recientes"></div>
+  </section>
+</main>
+<script type="module" src="js/pages/dashboard.js"></script>
+</body>
+</html>

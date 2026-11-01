@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><title>StitchPro</title>
+<noscript><meta http-equiv="refresh" content="0;url=login.html"></noscript></head>
+<body>
+<script type="module">
+  // Router de entrada: con sesión → dashboard, sin sesión → login
+  import { getSession } from './js/core/auth.js';
+  location.replace((await getSession()) ? 'dashboard.html' : 'login.html');
+</script>
+</body></html>
