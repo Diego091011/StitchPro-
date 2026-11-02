@@ -1,0 +1,10 @@
+select.est{width:auto;padding:5px 26px 5px 12px;border-radius:99px;font-size:.8rem;cursor:pointer;border:1px solid var(--c);color:var(--c);background-color:color-mix(in srgb,var(--c) 12%,transparent)}
+select.est.pendiente{--c:var(--warn)}select.est.en_proceso{--c:var(--blue)}select.est.listo{--c:var(--ok)}select.est.entregado{--c:#a78bfa}
+select.est option{background:var(--bg2);color:var(--tx)}
+.orow{display:grid;grid-template-columns:1fr 70px 110px 100px 40px;gap:8px;align-items:center;margin-bottom:8px}
+.orow b{text-align:right;font-weight:600}
+@media(max-width:700px){.orow{grid-template-columns:1fr 60px 90px 40px}.orow b{display:none}}
+.prog{height:6px;border-radius:99px;background:var(--glass-b);overflow:hidden;margin-top:5px;min-width:110px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ok));border-radius:99px}
+.paid{color:var(--ok);font-weight:600}
+.act a.btn{display:inline-block}

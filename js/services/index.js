@@ -10,9 +10,15 @@ const crud = (table, order, asc = true, select = '*') => ({
 });
 
 export const inventario = crud('inventario', 'nombre');
+export const categorias = {
+  ...crud('categorias_inventario', 'nombre'),
+  seed: async (names) => unwrap(await sb.from('categorias_inventario').insert(names.map((nombre) => ({ nombre }))).select()),
+};
 export const clientes = crud('clientes', 'nombre_completo');
 export const servicios = crud('servicios', 'nombre');
-export const pedidos = crud('pedidos', 'fecha_ingreso', false, '*, clientes(nombre_completo), servicios(nombre, tipo, minutos_estimados, costo_neto, precio_final)');
+export const pedidos = crud('pedidos', 'fecha_ingreso', false, '*, clientes(nombre_completo, telefono), pagos(id, monto, metodo, nota, fecha), servicios(nombre, tipo, minutos_estimados, costo_neto, precio_final)');
+
+export const pagos = crud('pagos', 'fecha', false);
 
 export const config = {
   get: async () => unwrap(await sb.from('configuracion_global').select('*').maybeSingle()),

@@ -1,6 +1,6 @@
 import { requireAuth } from '../core/auth.js';
 import { mountShell } from '../core/shell.js';
-import { $, $$, money, esc, toast } from '../core/utils.js';
+import { $, $$, money, moneyU, esc, toast } from '../core/utils.js';
 import { cotizar, costoManoObraMin, costoEnergiaMin } from '../calculator.js';
 import * as S from '../services/index.js';
 
@@ -24,7 +24,7 @@ async function load() {
 function addRow(id = '', qty = 1) {
   const r = document.createElement('div');
   r.className = 'row';
-  r.innerHTML = `<select><option value="">Insumo…</option>${st.inv.map((i) => `<option value="${i.id}" ${i.id === id ? 'selected' : ''}>${esc(i.nombre)} · ${money(i.costo_unidad)}/${esc(i.unidad_medida)}</option>`).join('')}</select>
+  r.innerHTML = `<select><option value="">Insumo…</option>${st.inv.map((i) => `<option value="${i.id}" ${i.id === id ? 'selected' : ''}>${esc(i.nombre)} · ${moneyU(i.costo_unidad)}/${esc(i.unidad_medida)}</option>`).join('')}</select>
     <input type="number" min="0" step="any" value="${qty}"><button type="button" class="btn ghost sm" title="Quitar">✕</button>`;
   r.querySelector('button').onclick = () => { r.remove(); calc(); };
   $('#c-rows').append(r);

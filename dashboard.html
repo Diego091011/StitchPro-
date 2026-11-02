@@ -5,6 +5,7 @@
 <title>StitchPro · Dashboard</title>
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/layout.css">
+<link rel="stylesheet" href="assets/css/components.css">
 <link rel="stylesheet" href="assets/css/dashboard.css">
 </head>
 <body>
@@ -19,13 +20,16 @@
     <div class="calc-g">
       <div class="form">
         <label>Tipo de Prenda<select id="dq-prenda"></select></label>
-        <label>Tipo de Alteración<select id="dq-alt"></select></label>
-        <label>Horas de Trabajo <span id="dq-hlbl" class="hl">1.5 h</span><input id="dq-horas" type="range" min="0.25" max="12" step="0.25" value="1.5"></label>
-        <label>Margen de ganancia %<input id="dq-margen" type="number" min="0" value="30"></label>
-        <div class="full"><label>Materiales (clic para incluir)</label><div id="dq-mats" class="chips"></div></div>
+        <label>Buscar arreglo o prenda<input id="dq-buscar" list="dq-list" placeholder="Escribe para buscar…" autocomplete="off"><datalist id="dq-list"></datalist></label>
+        <label>Tiempo de trabajo <span id="dq-hlbl" class="hl">30 min</span><input id="dq-min" type="range" min="1" max="600" step="1" value="30"></label>
+        <label>Margen de ganancia %<input id="dq-margen" type="number" min="0" step="any" value="30"></label>
+        <div class="full"><label>Materiales usados (editables solo para esta cotización)</label><div id="dq-mats"></div>
+          <div class="addmat"><select id="dq-addmat"></select><button type="button" class="btn ghost sm" id="dq-addbtn">+ Agregar</button></div></div>
         <p class="hint full" id="dq-hint"></p>
       </div>
-      <div class="price"><small>Precio Final</small><b id="dq-precio">—</b><button class="btn green" id="dq-calc">Calcular</button><button class="btn ghost sm" id="dq-save">Guardar servicio</button></div>
+      <div class="price"><small>Precio Final</small><b id="dq-precio">—</b><span class="hint" id="dq-desg"></span>
+        <select id="dq-cli"></select>
+        <button class="btn green" id="dq-calc">Calcular</button><button class="btn ghost sm" id="dq-order">Crear orden</button></div>
     </div>
   </section>
 

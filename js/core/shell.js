@@ -5,10 +5,11 @@ import { $ } from './utils.js';
 // [id, página, icono, etiqueta, disponible]
 const NAV = [
   ['dashboard', 'dashboard.html', 'home', 'Dashboard', true],
+  ['catalogo', 'catalogo.html', 'hanger', 'Catálogo', true],
   ['cotizador', 'cotizador.html', 'calc', 'Cotizador', true],
-  ['pedidos', '#', 'clip', 'Órdenes', false],
+  ['pedidos', 'pedidos.html', 'clip', 'Órdenes', true],
   ['inventario', 'inventario.html', 'box', 'Inventario', true],
-  ['clientes', '#', 'users', 'Clientes', false],
+  ['clientes', 'clientes.html', 'users', 'Clientes', true],
   ['config', 'config.html', 'set', 'Configuración', true],
 ];
 
@@ -32,6 +33,7 @@ export async function mountShell(active) {
     </header></div>`);
   $('.shell').append($('#page'));
   $('#logout').onclick = signOut;
+  $('#bell').onclick = () => (location.href = 'pedidos.html');
   $('#search').addEventListener('input', (e) => document.dispatchEvent(new CustomEvent('shell:search', { detail: e.target.value.trim().toLowerCase() })));
   const s = await getSession();
   $('#me').textContent = s.user.email; $('#av').textContent = s.user.email[0].toUpperCase();

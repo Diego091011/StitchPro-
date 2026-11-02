@@ -14,7 +14,23 @@
 .tag{padding:3px 10px;border-radius:99px;font-size:.75rem;background:var(--glass-b)}
 .low{color:var(--bad)}
 .lnk{color:var(--ok);text-decoration:underline}
-dialog{background:var(--bg2);color:var(--tx);border:1px solid var(--glass-b);border-radius:var(--r);padding:22px;width:min(560px,94vw);margin:auto}
+dialog{background:var(--bg2);color:var(--tx);border:1px solid var(--glass-b);border-radius:var(--r);padding:22px;width:min(680px,94vw);max-height:90vh;overflow-y:auto;margin:auto}
 dialog::backdrop{background:rgba(0,0,0,.65);backdrop-filter:blur(4px)}
 dialog h3{margin-bottom:14px}
 .modal-act{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.sec{grid-column:1/-1;color:var(--ok);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-top:8px;padding-bottom:4px;border-bottom:1px solid var(--glass-b)}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px 18px;margin:10px 0 4px}
+.mgrid div{display:flex;justify-content:space-between;gap:10px;font-size:.88rem}.mgrid span{color:var(--mut)}
+.preview{margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(34,229,143,.08);border:1px solid rgba(34,229,143,.3);font-size:.9rem}
+.preview b{color:var(--ok)}
+.catrow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--glass-b)}
+.catadd{display:flex;gap:8px;margin-top:14px}
+dialog.wide{width:min(820px,95vw)}
+.warn{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.4);color:var(--warn);border-radius:10px;padding:9px 12px;margin-bottom:12px;font-size:.84rem}
+.mrow{display:grid;grid-template-columns:1fr 100px 46px 90px 40px;gap:8px;align-items:center;margin-bottom:8px}
+.mrow small{color:var(--mut)}.mrow b{text-align:right;font-weight:600}
+@media(max-width:620px){.mrow{grid-template-columns:1fr 80px 40px}.mrow b{display:none}}
+.rpv{display:grid;gap:6px}.rpv div{display:flex;justify-content:space-between;color:var(--mut)}
+.rpv .tot{color:var(--tx);font-size:1.25rem;font-weight:800;border-top:1px solid var(--glass-b);padding-top:8px;margin-top:4px}
+.rpv .tot span:last-child{color:var(--ok)}
+input.miss{border-color:var(--warn);background:rgba(251,191,36,.07)}

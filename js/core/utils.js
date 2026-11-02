@@ -11,3 +11,6 @@ export function toast(msg, err = false) {
   el.textContent = msg; el.className = 'on' + (err ? ' err' : '');
   clearTimeout(t); t = setTimeout(() => (el.className = ''), 2800);
 }
+
+/** Dinero para costos unitarios pequeños (ej. $0,42 por yarda): más decimales cuando el valor es bajo. */
+export const moneyU = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: n >= 1000 ? 0 : n >= 10 ? 2 : 4 }).format(n || 0);

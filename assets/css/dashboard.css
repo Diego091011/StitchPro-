@@ -26,3 +26,5 @@
 .pill{display:inline-flex;align-items:center;gap:7px;padding:4px 12px;border-radius:99px;font-size:.8rem;border:1px solid var(--c);color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent)}
 .pill i{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 6px var(--c)}
 .pill.pendiente{--c:var(--warn)}.pill.en_proceso{--c:var(--blue)}.pill.listo{--c:var(--ok)}.pill.entregado{--c:#a78bfa}
+.addmat{display:flex;gap:8px;margin-top:6px}.addmat select{flex:1}
+.price select{font-size:.85rem}.price .hint{font-size:.78rem}
