@@ -10,7 +10,7 @@ await mountShell('clientes');
 
 /* Medidas agrupadas: [grupo, [[clave_en_jsonb, etiqueta], ...]] */
 const GRUPOS = [
-  ['Torso y busto', [['busto', 'Busto'], ['radio_busto', 'Radio de busto'], ['altura_busto', 'Altura de busto'], ['ancho_torax', 'Ancho de tórax'], ['ancho_espalda', 'Ancho de espalda'], ['hombro', 'Hombro']]],
+  ['Torso y busto', [['busto', 'Busto'], ['radio_busto', 'Radio de busto'], ['altura_busto', 'Altura de busto'], ['ancho_torax', 'Ancho de tórax'], ['ancho_espalda', 'Ancho de espalda'], ['hombro', 'Hombro'], ['costado', 'Costado'], ['escote', 'Escote'], ['cuello', 'Cuello']]],
   ['Cintura y cadera', [['cintura', 'Cintura'], ['cadera', 'Cadera'], ['altura_cadera', 'Altura de cadera']]],
   ['Talles', [['talle_delantero', 'Talle delantero'], ['talle_centro_delantero', 'Talle centro delantero'], ['talle_centro_posterior', 'Talle centro posterior'], ['largo_talle', 'Largo de talle'], ['largo_talle_posterior', 'Largo de talle posterior']]],
   ['Largos', [['estatura', 'Estatura'], ['largo_blusa', 'Largo de blusa'], ['largo_falda', 'Largo de falda'], ['largo_pantalon', 'Largo de pantalón']]],
@@ -27,13 +27,13 @@ const FIELDS = [
   { k: 'notas', l: 'Notas', t: 'textarea', full: 1 },
 ];
 
-let rows = [], inv = [], cfg = null, Q = '';
+let rows = [], inv = [], cfg = null, maq = [], Q = '';
 const match = (r) => !Q || JSON.stringify(r).toLowerCase().includes(Q);
 const wa = (t) => { const d = String(t || '').replace(/\D/g, ''); return d ? `https://wa.me/${d.length === 10 ? '57' + d : d}` : ''; };
 const count = (r) => MED.filter(([k]) => r.medidas?.[k] != null).length;
 
 async function load() {
-  try { [rows, inv, cfg] = await Promise.all([S.clientes.list(), S.inventario.list(), S.config.get()]); } catch (e) { toast(e.message, true); }
+  try { [rows, inv, cfg, maq] = await Promise.all([S.clientes.list(), S.inventario.list(), S.config.get(), S.maquinas.list()]); } catch (e) { toast(e.message, true); }
   render();
 }
 
@@ -72,11 +72,11 @@ async function edit(row) {
 
 async function calcular(cliente) {
   if (!inv.length) return toast('Primero crea tus insumos (tela, hilo…) en Inventario', true);
-  const v = await estimador({ cliente, inv, cfg });
+  const v = await estimador({ cliente, inv, cfg, maq });
   if (!v) return;
   try {
     await S.pedidos.create({ cliente_id: cliente.id, servicio_id: null, estado: 'pendiente', total_cobrado: v.res.precio_final, notas: v.detalle,
-      items: [{ servicio_id: null, nombre: v.nombre, prenda: v.prenda, tipo: 'confeccion', cantidad: 1, precio: v.res.precio_final, minutos: v.minutos, costo_neto: v.res.costo_neto, insumos: v.insumos }] });
+      items: [{ servicio_id: null, nombre: v.nombre, prenda: v.prenda, tipo: 'confeccion', cantidad: 1, precio: v.res.precio_final, minutos: v.minutos, costo_neto: v.res.costo_neto, energia: v.res.desglose.energia, insumos: v.insumos }] });
     toast('Orden creada: ya la ves en Órdenes');
   } catch (e) { toast(e.message, true); }
 }

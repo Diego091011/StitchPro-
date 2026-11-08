@@ -10,7 +10,8 @@ import * as S from '../services/index.js';
 await requireAuth();
 await mountShell('dashboard');
 
-const st = { cfg: null, inv: [], ped: [], srv: [], cli: [] };
+const col = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const st = { cfg: null, inv: [], ped: [], srv: [], cli: [], maq: [] };
 let Q = '';
 const ESTADO = { pendiente: 'Pendiente', en_proceso: 'En Proceso', listo: 'Listo', entregado: 'Entregado' };
 const pill = (e) => `<span class="pill ${e}"><i></i>${ESTADO[e] || e}</span>`;
@@ -18,12 +19,13 @@ const ord = (n) => '#' + String(n || 0).padStart(5, '0');
 const itemsOf = (p) => (p.items?.length ? p.items : p.servicios ? [{ nombre: p.servicios.nombre, tipo: p.servicios.tipo, cantidad: 1, minutos: p.servicios.minutos_estimados, costo_neto: p.servicios.costo_neto }] : []);
 const costoDe = (p) => itemsOf(p).reduce((a, i) => a + (i.cantidad || 1) * Number(i.costo_neto || 0), 0);
 const minsDe = (p) => itemsOf(p).reduce((a, i) => a + (i.cantidad || 1) * Number(i.minutos || 0), 0);
+const energiaDe = (p, eMin) => itemsOf(p).reduce((a, i) => a + (i.cantidad || 1) * (i.energia != null ? Number(i.energia) : Number(i.minutos || 0) * eMin), 0);
 const mk = (d) => d.getFullYear() * 12 + d.getMonth();
 const match = (r) => !Q || JSON.stringify(r).toLowerCase().includes(Q);
 
 /* ---------- Datos ---------- */
 async function load() {
-  try { [st.cfg, st.inv, st.ped, st.srv, st.cli] = await Promise.all([S.config.get(), S.inventario.list(), S.pedidos.list(), S.servicios.list(), S.clientes.list()]); }
+  try { [st.cfg, st.inv, st.ped, st.srv, st.cli, st.maq] = await Promise.all([S.config.get(), S.inventario.list(), S.pedidos.list(), S.servicios.list(), S.clientes.list(), S.maquinas.list()]); }
   catch (e) { toast(e.message, true); }
   [...st.ped].sort((a, b) => a.fecha_ingreso.localeCompare(b.fecha_ingreso)).forEach((p, i) => (p.num = i + 1));
   kpis(); recientes(); catalogo(); price();
@@ -42,14 +44,15 @@ function kpis() {
   const eMin = st.cfg ? costoEnergiaMin(st.cfg.potencia_maquina_w, st.cfg.precio_kwh) : 0;
   const sU = serie((p) => (p.pagado ? Number(p.total_cobrado) - costoDe(p) : 0));
   const sA = serie(() => 1);
-  const sE = serie((p) => minsDe(p) * eMin);
+  const sE = serie((p) => energiaDe(p, eMin));
   const activas = st.ped.filter((p) => ['pendiente', 'en_proceso'].includes(p.estado)).length;
   const nuevas = st.ped.filter((p) => Date.now() - new Date(p.fecha_ingreso) < 7 * 864e5).length;
+  const [cG, cP, cC] = [col('--ok'), col('--ac'), col('--ac2')];
   const card = (c, icon, l, v, sub, id) => `<div class="card kpi" style="--c:${c}">${ic(icon)}<div><small>${l}</small><b>${v}</b><span class="sub">${sub}</span></div><canvas id="${id}"></canvas></div>`;
-  $('#kpis').innerHTML = card('#22e58f', 'trend', 'Utilidad Neta Mensual', money(sU[5]), delta(sU), 'k1')
-    + card('#8b5cf6', 'hanger', 'Órdenes Activas', activas, `<span class="pos">↑ +${nuevas}</span> nuevas (7 días)`, 'k2')
-    + card('#22d3ee', 'bolt', 'Costo Energía Eléctrica', money(sE[5]), delta(sE, false), 'k3');
-  spark($('#k1'), sU, '#22e58f'); spark($('#k2'), sA, '#8b5cf6'); spark($('#k3'), sE, '#22d3ee');
+  $('#kpis').innerHTML = card(cG, 'trend', 'Utilidad Neta Mensual', money(sU[5]), delta(sU), 'k1')
+    + card(cP, 'hanger', 'Órdenes Activas', activas, `<span class="pos">↑ +${nuevas}</span> nuevas (7 días)`, 'k2')
+    + card(cC, 'bolt', 'Costo Energía Eléctrica', money(sE[5]), delta(sE, false), 'k3');
+  spark($('#k1'), sU, cG); spark($('#k2'), sA, cP); spark($('#k3'), sE, cC);
 }
 
 /* ---------- Órdenes recientes ---------- */
@@ -62,7 +65,7 @@ function recientes() {
 }
 
 /* ---------- Cotización rápida (usa el catálogo) ---------- */
-const dq = { tipo: 'arreglo_rapido', item: null, mats: [], res: null };
+const dq = { tipo: 'arreglo_rapido', item: null, mats: [], res: null, maq: [], base: 0 };
 const label = (s) => `${s.nombre}${s.prenda ? ' · ' + s.prenda : ''}`;
 const lista = () => st.srv.filter((s) => s.tipo === dq.tipo && (!$('#dq-prenda').value || s.prenda === $('#dq-prenda').value));
 const dur = (m) => (m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ' ' + (m % 60) + ' min' : ''}` : `${m} min`);
@@ -75,6 +78,7 @@ function catalogo() {
   $('#dq-addmat').innerHTML = '<option value="">Agregar material…</option>' + insumoOptions(st.inv);
   $('#dq-cli').innerHTML = '<option value="">Cliente (para crear orden)…</option>' + st.cli.map((c) => `<option value="${c.id}">${esc(c.nombre_completo)}</option>`).join('');
   if (dq.item && !st.srv.some((s) => s.id === dq.item.id)) dq.item = null;
+  if (!dq.item && st.cfg) $('#dq-margen').value = st.cfg.margen_defecto ?? 30;
   drawMats();
 }
 function drawMats() {
@@ -88,6 +92,7 @@ function pick(s) {
   dq.item = s;
   $('#dq-min').value = Math.min(600, Math.max(1, s.minutos_estimados)); $('#dq-margen').value = s.margen_ganancia_pct;
   dq.mats = (s.insumos_usados || []).map((m) => ({ ...m }));
+  dq.maq = (s.maquinas || []).map((m) => ({ ...m })); dq.base = s.minutos_estimados;
   drawMats(); price();
 }
 function price() {
@@ -98,7 +103,8 @@ function price() {
   dq.res = null; $('#dq-precio').textContent = '—'; $('#dq-desg').textContent = '';
   if (!st.cfg) return;
   try {
-    dq.res = cotizar({ minutos: min, margenPct: Number($('#dq-margen').value) || 0, insumos: dq.mats }, st.cfg, st.inv);
+    const maquinas = dq.maq.map((u) => ({ ...u, minutos: (u.minutos * min) / (dq.base || min) }));
+    dq.res = cotizar({ minutos: min, margenPct: Number($('#dq-margen').value) || 0, insumos: dq.mats, maquinas }, st.cfg, st.inv, st.maq);
     const d = dq.res.desglose;
     $('#dq-precio').textContent = money(dq.res.precio_final);
     $('#dq-desg').textContent = `Materiales ${money(d.materiales)} · Mano de obra ${money(d.manoObra)} · Energía ${money(d.energia)}`;
@@ -125,7 +131,7 @@ $('#dq-mats').addEventListener('click', (e) => { const b = e.target.closest('[da
 $('#page').addEventListener('click', (e) => {
   const tipo = e.target.closest('[data-tipo]');
   if (!tipo) return;
-  dq.tipo = tipo.dataset.tipo; dq.item = null; $('#dq-buscar').value = '';
+  dq.tipo = tipo.dataset.tipo; dq.item = null; dq.maq = []; $('#dq-buscar').value = '';
   document.querySelectorAll('[data-tipo]').forEach((x) => x.classList.toggle('on', x === tipo));
   catalogo();
 });
@@ -136,11 +142,12 @@ $('#dq-order').onclick = async () => {
   if (!dq.item) return toast('Elige un servicio del catálogo', true);
   const cid = $('#dq-cli').value;
   if (!cid) return toast('Elige el cliente', true);
-  try { await S.pedidos.create({ cliente_id: cid, servicio_id: dq.item.id, total_cobrado: dq.res.precio_final, items: [{ servicio_id: dq.item.id, nombre: dq.item.nombre, prenda: dq.item.prenda, tipo: dq.item.tipo, cantidad: 1, precio: dq.res.precio_final, minutos: Number($('#dq-min').value), costo_neto: dq.res.costo_neto, insumos: dq.mats }] }); toast('Orden creada'); await load(); }
+  try { await S.pedidos.create({ cliente_id: cid, servicio_id: dq.item.id, total_cobrado: dq.res.precio_final, items: [{ servicio_id: dq.item.id, nombre: dq.item.nombre, prenda: dq.item.prenda, tipo: dq.item.tipo, cantidad: 1, precio: dq.res.precio_final, minutos: Number($('#dq-min').value), costo_neto: dq.res.costo_neto, energia: dq.res.desglose.energia, insumos: dq.mats }] }); toast('Orden creada'); await load(); }
   catch (e) { toast(e.message, true); }
 };
 
 /* ---------- Eventos globales ---------- */
 document.addEventListener('shell:search', (e) => { Q = e.detail; recientes(); });
 addEventListener('resize', kpis);
+document.addEventListener('theme:change', kpis);
 load();

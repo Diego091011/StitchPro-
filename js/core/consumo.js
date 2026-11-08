@@ -5,7 +5,7 @@
  */
 const n = (v) => Number(v) || 0;
 
-export const MEDIDAS_LABEL = { cintura: 'Cintura', cadera: 'Cadera', busto: 'Busto', largo_pantalon: 'Largo de pantalón', largo_falda: 'Largo de falda', largo_blusa: 'Largo de blusa / chaqueta', largo_talle: 'Largo de talle' };
+export const MEDIDAS_LABEL = { cintura: 'Cintura', cadera: 'Cadera', busto: 'Busto', largo_pantalon: 'Largo de pantalón', largo_falda: 'Largo de falda', largo_blusa: 'Largo de blusa / chaqueta', largo_talle: 'Largo de talle', costado: 'Costado', cuello: 'Cuello', escote: 'Escote' };
 export const MANGAS = [['Sin manga', 0], ['Corta', 22], ['Tres cuartos', 45], ['Larga', 60]];
 export const VUELOS = [['Recta', 1], ['Evasé', 1.4], ['Amplia', 1.8], ['Vuelo completo', 2.5]];
 
@@ -14,26 +14,29 @@ export const PRENDAS = {
   pantalon: { nombre: 'Pantalón', req: ['cintura', 'cadera', 'largo_pantalon'], minutos: 240, hilo: 250, extras: [{ kw: ['cierre'], qty: 1 }, { kw: ['boton'], qty: 1 }] },
   short: { nombre: 'Short', req: ['cintura', 'cadera'], minutos: 150, hilo: 130, extras: [{ kw: ['cierre'], qty: 1 }, { kw: ['boton'], qty: 1 }] },
   falda: { nombre: 'Falda', req: ['cintura', 'cadera', 'largo_falda'], minutos: 150, hilo: 120, vuelo: true, extras: [{ kw: ['cierre'], qty: 1 }, { kw: ['boton'], qty: 1 }] },
-  blusa: { nombre: 'Blusa / Camisa', req: ['busto', 'largo_blusa'], minutos: 180, hilo: 150, manga: true, mangaDef: 22, extras: [{ kw: ['boton'], qty: 6 }] },
-  vestido: { nombre: 'Vestido', req: ['busto', 'cintura', 'cadera', 'largo_talle', 'largo_falda'], minutos: 360, hilo: 250, manga: true, mangaDef: 0, vuelo: true, extras: [{ kw: ['cierre'], qty: 1 }] },
-  chaqueta: { nombre: 'Chaqueta', req: ['busto', 'largo_blusa'], minutos: 480, hilo: 300, manga: true, mangaDef: 60, forro: true, extras: [{ kw: ['boton'], qty: 4 }] },
+  blusa: { nombre: 'Blusa / Camisa', req: ['busto', 'largo_blusa'], minutos: 180, hilo: 150, manga: true, mangaDef: 22, opt: ['cuello', 'escote'], extras: [{ kw: ['boton'], qty: 6 }] },
+  vestido: { nombre: 'Vestido', req: ['busto', 'cintura', 'cadera', 'largo_talle', 'largo_falda'], minutos: 360, hilo: 250, manga: true, mangaDef: 0, vuelo: true, opt: ['escote', 'cuello', 'costado'], extras: [{ kw: ['cierre'], qty: 1 }] },
+  chaqueta: { nombre: 'Chaqueta', req: ['busto', 'largo_blusa'], minutos: 480, hilo: 300, manga: true, mangaDef: 60, forro: true, opt: ['cuello', 'costado'], extras: [{ kw: ['boton'], qty: 4 }] },
 };
 
 /** Piezas rectangulares aproximadas: {n: nombre, w: ancho, h: largo, qty, f: va en el forro}. */
 export function piezas(tipo, m, o = {}) {
   const L = (d) => n(o.largo) || n(d), vuelo = n(o.vuelo) || 1;
   const mangas = (base) => (n(o.manga) > 0 ? [{ n: 'Mangas', w: n(m.busto) / 3 + base, h: n(o.manga) + 5, qty: 2, f: 1 }] : []);
+  const detalles = (def) => (n(m.cuello) > 0 || n(m.escote) > 0
+    ? [...(n(m.cuello) > 0 ? [{ n: 'Cuello', w: n(m.cuello) + 8, h: 14, qty: 1 }] : []), ...(n(m.escote) > 0 ? [{ n: 'Vista de escote', w: n(m.escote) + 6, h: 8, qty: 1 }] : [])] : def);
+  const costados = (extra) => (n(m.costado) > 0 ? [{ n: 'Costados', w: n(m.busto) / 4 + 6, h: n(m.costado) + extra, qty: 2, f: 1 }] : []);
   switch (tipo) {
     case 'pantalon': case 'short': {
       const l = tipo === 'short' ? n(o.largo) || 45 : L(m.largo_pantalon);
       return [{ n: 'Delanteros', w: n(m.cadera) / 4 + 9, h: l + 7, qty: 2 }, { n: 'Traseros', w: n(m.cadera) / 4 + 11, h: l + 7, qty: 2 }, { n: 'Pretina', w: n(m.cintura) + 12, h: 9, qty: 1 }, { n: 'Bolsillos', w: 20, h: 25, qty: 2 }];
     }
     case 'falda': return [{ n: 'Paneles', w: (n(m.cadera) / 2 + 10) * vuelo, h: L(m.largo_falda) + 6, qty: 2 }, { n: 'Pretina', w: n(m.cintura) + 10, h: 8, qty: 1 }];
-    case 'blusa': return [{ n: 'Delantero y espalda', w: n(m.busto) / 2 + 8, h: L(m.largo_blusa) + 5, qty: 2 }, ...mangas(6), { n: 'Cuello y detalles', w: 40, h: 12, qty: 1 }];
-    case 'vestido': return [{ n: 'Cuerpo', w: n(m.busto) / 2 + 8, h: n(m.largo_talle) + 6, qty: 2, f: 1 }, { n: 'Falda', w: (n(m.cadera) / 2 + 10) * vuelo, h: L(m.largo_falda) + 6, qty: 2, f: 1 }, ...mangas(6)];
+    case 'blusa': return [{ n: 'Delantero y espalda', w: n(m.busto) / 2 + 8, h: L(m.largo_blusa) + 5, qty: 2 }, ...mangas(6), ...detalles([{ n: 'Cuello y detalles', w: 40, h: 12, qty: 1 }])];
+    case 'vestido': return [{ n: 'Cuerpo', w: n(m.busto) / 2 + 8, h: n(m.largo_talle) + 6, qty: 2, f: 1 }, { n: 'Falda', w: (n(m.cadera) / 2 + 10) * vuelo, h: L(m.largo_falda) + 6, qty: 2, f: 1 }, ...mangas(6), ...detalles([]), ...costados(8)];
     case 'chaqueta': {
       const l = L(m.largo_blusa);
-      return [{ n: 'Frentes', w: n(m.busto) / 4 + 12, h: l + 8, qty: 2, f: 1 }, { n: 'Espalda', w: n(m.busto) / 2 + 12, h: l + 8, qty: 1, f: 1 }, ...mangas(8), { n: 'Solapa y bolsillos', w: 60, h: 30, qty: 1 }];
+      return [{ n: 'Frentes', w: n(m.busto) / 4 + 12, h: l + 8, qty: 2, f: 1 }, { n: 'Espalda', w: n(m.busto) / 2 + 12, h: l + 8, qty: 1, f: 1 }, ...mangas(8), { n: 'Solapa y bolsillos', w: 60, h: 30, qty: 1 }, ...detalles([]), ...costados(10)];
     }
     default: return [];
   }

@@ -17,6 +17,8 @@ export async function redirectIfAuth() {
 const unwrap = ({ data, error }) => { if (error) throw error; return data; };
 export const signIn = async (email, password) => unwrap(await sb.auth.signInWithPassword({ email, password }));
 export const signUp = async (email, password) => unwrap(await sb.auth.signUp({ email, password }));
+export const getUser = async () => (await sb.auth.getUser()).data.user;
+export async function changePassword(password) { const { error } = await sb.auth.updateUser({ password }); if (error) throw error; }
 export async function signOut() { await sb.auth.signOut(); location.replace('login.html'); }
 
 export function friendly(e) {

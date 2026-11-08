@@ -6,7 +6,7 @@ export const abonado = (p) => (p.pagos || []).reduce((a, x) => a + Number(x.mont
 export const saldo = (p) => Math.max(0, Number(p.total_cobrado) - abonado(p));
 
 /** Abre el recibo en una pestaña lista para imprimir o guardar como PDF. */
-export function imprimirRecibo(p, { taller = 'StitchPro', num = '' } = {}) {
+export function imprimirRecibo(p, { taller = 'StitchPro', telefono = '', direccion = '', pie = '', num = '' } = {}) {
   const filas = itemsDe(p).map((i) => `<tr><td>${esc(i.nombre)}${i.prenda ? `<br><small>${esc(i.prenda)}</small>` : ''}</td><td class="r">${i.cantidad}</td><td class="r">${money(i.precio)}</td><td class="r">${money(i.cantidad * i.precio)}</td></tr>`).join('');
   const pagos = (p.pagos || []).map((x) => `<tr><td>${day(x.fecha)} · ${esc(x.metodo)}</td><td class="r">${money(x.monto)}</td></tr>`).join('');
   const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${esc(num)}</title><style>
@@ -16,14 +16,14 @@ export function imprimirRecibo(p, { taller = 'StitchPro', num = '' } = {}) {
     table{width:100%;border-collapse:collapse}td,th{padding:7px 4px;border-bottom:1px solid #ddd;text-align:left;font-size:14px}.r{text-align:right}small{color:#666}
     .tot td{font-weight:700;font-size:16px;border-bottom:0}.foot{margin-top:28px;font-size:12px;color:#666;text-align:center}
     @media print{button{display:none}}</style></head><body>
-    <div class="top"><div><h1>${esc(taller)}</h1><small>Recibo de orden</small></div><div class="r"><b>${esc(num)}</b><br><small>${day(p.fecha_ingreso)}</small></div></div>
+    <div class="top"><div><h1>${esc(taller)}</h1><small>Recibo de orden${telefono || direccion ? ` · ${esc([telefono, direccion].filter(Boolean).join(' · '))}` : ''}</small></div><div class="r"><b>${esc(num)}</b><br><small>${day(p.fecha_ingreso)}</small></div></div>
     <h2>Cliente</h2><div>${esc(p.clientes?.nombre_completo)}${p.clientes?.telefono ? ` · ${esc(p.clientes.telefono)}` : ''}</div>
     <h2>Servicios</h2><table><tr><th>Detalle</th><th class="r">Cant.</th><th class="r">Precio</th><th class="r">Subtotal</th></tr>${filas}</table>
     <table style="margin-top:8px"><tr class="tot"><td>Total</td><td class="r">${money(p.total_cobrado)}</td></tr></table>
     ${pagos ? `<h2>Abonos</h2><table>${pagos}</table>` : ''}
     <table style="margin-top:8px"><tr class="tot"><td>Saldo pendiente</td><td class="r">${money(saldo(p))}</td></tr></table>
     <h2>Entrega</h2><div>${day(p.fecha_entrega)}</div>${p.notas ? `<h2>Notas</h2><div>${esc(p.notas)}</div>` : ''}
-    <div class="foot">¡Gracias por confiar en ${esc(taller)}!</div><p style="text-align:center"><button onclick="print()">Imprimir / Guardar PDF</button></p></body></html>`;
+    <div class="foot">${esc(pie || `¡Gracias por confiar en ${taller}!`)}</div><p style="text-align:center"><button onclick="print()">Imprimir / Guardar PDF</button></p></body></html>`;
   const w = window.open('', '_blank');
   if (!w) return false;
   w.document.write(html); w.document.close(); w.focus();

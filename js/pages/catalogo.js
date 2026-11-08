@@ -8,20 +8,20 @@ import * as S from '../services/index.js';
 await requireAuth();
 await mountShell('catalogo');
 
-const st = { cfg: null, inv: [], srv: [] };
+const st = { cfg: null, inv: [], srv: [], maq: [] };
 let Q = '', filtro = 'todos';
 const TIPO = { arreglo_rapido: 'Arreglo', confeccion: 'Prenda nueva' };
 const match = (r) => !Q || JSON.stringify(r).toLowerCase().includes(Q);
 
 async function load() {
-  try { [st.cfg, st.inv, st.srv] = await Promise.all([S.config.get(), S.inventario.list(), S.servicios.list()]); }
+  try { [st.cfg, st.inv, st.srv, st.maq] = await Promise.all([S.config.get(), S.inventario.list(), S.servicios.list(), S.maquinas.list()]); }
   catch (e) { toast(e.message, true); }
   render();
 }
 
 /** Precio recalculado con los costos actuales de inventario y configuración. */
 function vivo(s) {
-  try { return cotizar({ minutos: s.minutos_estimados, margenPct: s.margen_ganancia_pct, insumos: s.insumos_usados || [] }, st.cfg || NOCFG, st.inv); }
+  try { return cotizar({ minutos: s.minutos_estimados, margenPct: s.margen_ganancia_pct, insumos: s.insumos_usados || [], maquinas: s.maquinas || [] }, st.cfg || NOCFG, st.inv, st.maq); }
   catch { return null; }
 }
 
@@ -46,7 +46,7 @@ function render() {
 
 async function editar(item, esNuevo) {
   const prendas = [...new Set(st.srv.map((s) => s.prenda).filter(Boolean))];
-  const v = await recetaEditor({ item, inv: st.inv, cfg: st.cfg, prendas });
+  const v = await recetaEditor({ item, inv: st.inv, cfg: st.cfg, prendas, maq: st.maq });
   if (!v) return;
   try { esNuevo ? await S.servicios.create(v) : await S.servicios.update(item.id, v); toast('Receta guardada'); await load(); }
   catch (e) { toast(e.message, true); }

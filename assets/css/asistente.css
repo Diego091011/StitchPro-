@@ -1,0 +1,15 @@
+.chat{display:flex;flex-direction:column;height:calc(100vh - 150px);min-height:440px;padding:16px}
+.msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:4px 4px 10px}
+.m{max-width:80%;padding:12px 16px;border-radius:16px;line-height:1.55;font-size:.92rem;overflow-wrap:anywhere}
+.m.u{align-self:flex-end;background:var(--grad);color:#fff;border-bottom-right-radius:4px;box-shadow:0 0 16px rgba(var(--ac-rgb),.4)}
+.m.b{align-self:flex-start;background:var(--glass);border:1px solid var(--glass-b);border-bottom-left-radius:4px}
+.m.b p{margin:0 0 6px;color:var(--tx);font-size:inherit}.m.b p:last-child{margin:0}
+.m.b ul{margin:4px 0 6px 18px}.m.b b{color:var(--ok)}
+.m small{display:block;margin-top:8px;color:var(--mut);font-size:.72rem}
+.m.err{border-color:var(--bad);color:var(--bad)}
+.dots i{display:inline-block;width:7px;height:7px;margin-right:4px;border-radius:50%;background:var(--ac);animation:dot 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{50%{transform:translateY(-5px);opacity:.4}}
+.sug{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.send{display:flex;gap:8px;align-items:flex-end}.send textarea{resize:none;max-height:120px}
+@media(max-width:860px){.chat{height:calc(100vh - 230px)}.m{max-width:92%}}

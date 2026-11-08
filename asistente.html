@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StitchPro · Asistente</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/layout.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/asistente.css">
+</head>
+<body>
+<main id="page">
+  <div class="bar"><div><h2 style="margin:0">Asistente</h2><p>Pregúntale lo que quieras sobre tu taller: ventas, cobros, inventario, clientes y órdenes</p></div><button class="btn ghost" id="clear">Nueva conversación</button></div>
+  <section class="card chat">
+    <div class="msgs" id="msgs"></div>
+    <div class="sug" id="sug"></div>
+    <div class="send"><textarea id="q" rows="1" placeholder="Escribe tu pregunta…"></textarea><button class="btn green" id="go">Enviar</button></div>
+  </section>
+</main>
+<script type="module" src="js/pages/asistente.js"></script>
+</body>
+</html>

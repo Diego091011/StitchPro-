@@ -10,11 +10,12 @@ const toISO = (v) => (v ? new Date(`${v}T12:00:00`).toISOString() : null); // me
  * Editor de órdenes con varios ítems del catálogo (o ítems libres).
  * Guarda una "foto" de cada ítem (precio, materiales, costo) para que cambios futuros no alteren la orden.
  */
-export function ordenEditor({ orden = null, cli, srv, inv, cfg }) {
+export function ordenEditor({ orden = null, cli, srv, inv, cfg, maq = [] }) {
   return new Promise((resolve) => {
     const d = document.createElement('dialog');
     d.className = 'wide';
     const it = (orden?.items || []).map((x) => ({ ...x }));
+    const entregaDef = !orden && cfg?.dias_entrega ? toInput(new Date(Date.now() + cfg.dias_entrega * 864e5).toISOString()) : toInput(orden?.fecha_entrega);
     const sumItems = () => it.reduce((a, x) => a + x.cantidad * x.precio, 0);
     const desc0 = orden ? Math.max(0, sumItems() - Number(orden.total_cobrado)) : 0;
     const grupo = (t, l) => { const l2 = srv.filter((s) => s.tipo === t); return l2.length ? `<optgroup label="${l}">${l2.map((s) => `<option value="${s.id}">${esc(s.nombre)}${s.prenda ? ' · ' + esc(s.prenda) : ''}</option>`).join('')}</optgroup>` : ''; };
@@ -23,7 +24,7 @@ export function ordenEditor({ orden = null, cli, srv, inv, cfg }) {
       <div class="form">
         <label class="full">Cliente<select name="cliente" required><option value="">Selecciona…</option>${cli.map((c) => `<option value="${c.id}" ${c.id === orden?.cliente_id ? 'selected' : ''}>${esc(c.nombre_completo)}</option>`).join('')}</select></label>
         <label>Estado<select name="estado">${ESTADOS.map(([k, l]) => `<option value="${k}" ${k === (orden?.estado || 'pendiente') ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
-        <label>Fecha de entrega<input name="entrega" type="date" value="${toInput(orden?.fecha_entrega)}"></label>
+        <label>Fecha de entrega<input name="entrega" type="date" value="${entregaDef}"></label>
       </div>
       <h4 class="sec" style="margin-top:16px">Servicios de la orden</h4>
       <div id="orows"></div>
@@ -60,9 +61,9 @@ export function ordenEditor({ orden = null, cli, srv, inv, cfg }) {
         it.push({ servicio_id: null, nombre, cantidad: 1, precio: 0, minutos: 0, costo_neto: 0, insumos: [] });
       } else {
         const s = srv.find((x) => x.id === v);
-        let precio = Number(s.precio_final);
-        try { precio = cotizar({ minutos: s.minutos_estimados, margenPct: s.margen_ganancia_pct, insumos: s.insumos_usados || [] }, cfg || NOCFG, inv).precio_final; } catch { toast('Algún insumo de la receta ya no existe; se usó el precio guardado', true); }
-        it.push({ servicio_id: s.id, nombre: s.nombre, prenda: s.prenda, tipo: s.tipo, cantidad: 1, precio, minutos: s.minutos_estimados, costo_neto: Number(s.costo_neto), insumos: s.insumos_usados || [] });
+        let precio = Number(s.precio_final), energia;
+        try { const r = cotizar({ minutos: s.minutos_estimados, margenPct: s.margen_ganancia_pct, insumos: s.insumos_usados || [], maquinas: s.maquinas || [] }, cfg || NOCFG, inv, maq); precio = r.precio_final; energia = r.desglose.energia; } catch { toast('Algún insumo de la receta ya no existe; se usó el precio guardado', true); }
+        it.push({ servicio_id: s.id, nombre: s.nombre, prenda: s.prenda, tipo: s.tipo, cantidad: 1, precio, minutos: s.minutos_estimados, costo_neto: Number(s.costo_neto), insumos: s.insumos_usados || [], ...(energia != null ? { energia } : {}) });
       }
       draw();
     };

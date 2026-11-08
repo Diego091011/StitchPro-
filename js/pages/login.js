@@ -1,7 +1,9 @@
 import { redirectIfAuth, signIn, signUp, friendly } from '../core/auth.js';
 import { SPRITE, ic } from '../core/icons.js';
 import { $, $$ } from '../core/utils.js';
+import { applyTheme } from '../core/theme.js';
 
+applyTheme();
 await redirectIfAuth();
 document.body.insertAdjacentHTML('afterbegin', SPRITE);
 $('#logo').innerHTML = `${ic('dress')}<div class="brand">Stitch<span>Pro</span></div><small>Gestiona · Cose · Crece</small>`;

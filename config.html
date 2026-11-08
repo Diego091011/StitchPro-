@@ -5,16 +5,56 @@
 <title>StitchPro · Configuración</title>
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/layout.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/config.css">
 </head>
 <body>
 <main id="page">
-  <h2>Costos base</h2>
-  <form class="card form" id="form" style="max-width:640px">
-    <label>Sueldo base mensual<input name="sueldo_base" type="number" min="0" step="any" required></label>
-    <label>Horas trabajadas al mes<input name="horas_mes" type="number" min="1" required></label>
-    <label>Precio kWh<input name="precio_kwh" type="number" min="0" step="any" required></label>
-    <label>Potencia máquina (W)<input name="potencia_maquina_w" type="number" min="0" required></label>
-    <div class="full"><button class="btn green">Guardar</button> <a class="btn ghost" href="dashboard.html">Volver al dashboard</a></div>
+  <div class="bar"><h2>Configuración</h2></div>
+  <form class="cfg" id="form">
+    <section class="card">
+      <h3>Costos de producción</h3><p>Con estos datos se calcula el costo de la mano de obra y la energía de cada trabajo.</p>
+      <div class="form">
+        <label>Sueldo base mensual<input name="sueldo_base" type="number" min="0" step="any" required></label>
+        <label>Horas trabajadas al mes<input name="horas_mes" type="number" min="1" required></label>
+        <label>Precio del kWh<input name="precio_kwh" type="number" min="0" step="any" required></label>
+        <label>Potencia de la máquina (W)<input name="potencia_maquina_w" type="number" min="0" required></label>
+      </div>
+      <div class="preview rpv" id="cpv"></div>
+    </section>
+
+    <section class="card">
+      <h3>Valores por defecto</h3><p>Se usan al crear recetas, cotizar, calcular prendas y registrar órdenes.</p>
+      <div class="form">
+        <label>Margen de ganancia %<input name="margen_defecto" type="number" min="0" step="any" required></label>
+        <label>Ancho de tela (cm)<input name="ancho_tela_cm" type="number" min="60" max="400" required></label>
+        <label>Merma de tela %<input name="merma_pct" type="number" min="0" max="100" step="any" required></label>
+        <label>Días para la entrega<input name="dias_entrega" type="number" min="0" required></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Máquinas</h3><p>Cada máquina gasta distinta energía. Úsalas en las recetas para un costo más exacto; si una receta no tiene máquinas se usa la potencia general de arriba.</p>
+      <div id="maq"></div>
+      <button type="button" class="btn ghost" id="maq-add" style="margin-top:12px">+ Agregar máquina</button>
+    </section>
+
+    <section class="card">
+      <h3>Datos del taller</h3><p>Aparecen en los recibos y en los mensajes de WhatsApp.</p>
+      <div class="form">
+        <label class="full">Nombre del taller<input name="nombre_taller" placeholder="Ej. Taller Moda y Costura"></label>
+        <label>Teléfono<input name="telefono_taller"></label>
+        <label>Dirección<input name="direccion_taller"></label>
+        <label class="full">Mensaje al pie del recibo<input name="pie_recibo" placeholder="¡Gracias por confiar en nosotros!"></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Tus datos</h3><p>Descarga una copia de todo (inventario, clientes, recetas, órdenes y pagos) en un archivo.</p>
+      <button type="button" class="btn ghost" id="export">Descargar respaldo (JSON)</button>
+    </section>
+
+    <div class="savebar"><button class="btn green">Guardar cambios</button><a class="btn ghost" href="dashboard.html">Volver al dashboard</a></div>
   </form>
 </main>
 <script type="module" src="js/pages/config.js"></script>

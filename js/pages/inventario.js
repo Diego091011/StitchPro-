@@ -11,7 +11,8 @@ const DEFAULT_CATS = ['Telas', 'Hilos', 'Botones', 'Cierres', 'Agujas', 'Elásti
 const USO = [['yarda', 'Yarda'], ['metro', 'Metro'], ['cm', 'Centímetro'], ['unidad', 'Unidad'], ['par', 'Par'], ['gramo', 'Gramo']];
 const COMPRA = [['cono', 'Cono'], ['rollo', 'Rollo'], ['metro', 'Metro'], ['yarda', 'Yarda'], ['carretel', 'Carretel'], ['unidad', 'Unidad'], ['paquete', 'Paquete'], ['caja', 'Caja']];
 const lbl = (arr, k) => arr.find(([v]) => v === k)?.[1] || k;
-const DEFAULTS = { unidad_compra: 'cono', unidad_medida: 'yarda', precio_compra: '', cantidad_por_compra: '', stock_actual: 0 };
+const DEFAULTS = { unidad_compra: 'cono', unidad_medida: 'yarda', precio_compra: '', cantidad_por_compra: '', stock_actual: 0, stock_minimo: 0 };
+const low = (r) => Number(r.stock_minimo) > 0 && Number(r.stock_actual) > 0 && Number(r.stock_actual) <= Number(r.stock_minimo);
 
 let rows = [], cats = [], Q = '', cat = 'Todas';
 const match = (r) => !Q || JSON.stringify(r).toLowerCase().includes(Q);
@@ -28,8 +29,8 @@ async function load() {
 
 function render() {
   const valor = rows.reduce((a, r) => a + Number(r.stock_actual) * Number(r.costo_unidad), 0);
-  const sinStock = rows.filter((r) => Number(r.stock_actual) <= 0).length;
-  $('#stats').innerHTML = [['Insumos', rows.length], ['Valor del inventario', money(valor)], ['Sin stock', `<span class="${sinStock ? 'low' : ''}">${sinStock}</span>`]]
+  const sinStock = rows.filter((r) => Number(r.stock_actual) <= 0).length, bajo = rows.filter(low).length;
+  $('#stats').innerHTML = [['Insumos', rows.length], ['Valor del inventario', money(valor)], ['Sin stock', `<span class="${sinStock ? 'low' : ''}">${sinStock}</span>`], ['Stock bajo', `<span class="${bajo ? 'low' : ''}">${bajo}</span>`]]
     .map(([l, v]) => `<div class="card stat"><small>${l}</small><b>${v}</b></div>`).join('');
   $('#cats').innerHTML = ['Todas', ...cats.map((c) => c.nombre)].map((c) => `<button class="chip ${c === cat ? 'on' : ''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
 
@@ -40,7 +41,7 @@ function render() {
       return `<tr><td>${esc(r.nombre)}</td><td><span class="tag">${esc(r.categoria)}</span></td>
         <td>${money(r.precio_compra)} / ${lbl(COMPRA, r.unidad_compra)}<br><small class="hint">${n2(c)} ${esc(r.unidad_medida)} por ${lbl(COMPRA, r.unidad_compra).toLowerCase()}</small></td>
         <td class="pos">${moneyU(r.costo_unidad)} / ${esc(r.unidad_medida)}</td>
-        <td class="${s <= 0 ? 'low' : ''}">${n2(s)} ${esc(r.unidad_medida)}<br><small class="hint">≈ ${n2(s / c)} ${lbl(COMPRA, r.unidad_compra).toLowerCase()}${s <= 0 ? ' · sin stock' : ''}</small></td>
+        <td class="${s <= 0 || low(r) ? 'low' : ''}">${n2(s)} ${esc(r.unidad_medida)}<br><small class="hint">≈ ${n2(s / c)} ${lbl(COMPRA, r.unidad_compra).toLowerCase()}${s <= 0 ? ' · sin stock' : low(r) ? ` · stock bajo (mín. ${n2(r.stock_minimo)})` : ''}</small></td>
         <td class="act"><button class="btn ghost sm" data-stock="${r.id}">+ Stock</button><button class="btn ghost sm" data-edit="${r.id}">Editar</button><button class="btn bad sm" data-del="${r.id}">Eliminar</button></td></tr>`;
     }).join('')}</tbody></table>`
     : `<div class="empty">${rows.length ? 'Sin resultados' : 'Aún no tienes insumos. Agrega el primero.'}</div>`;
@@ -61,6 +62,7 @@ async function edit(row) {
     { k: 'cantidad_por_compra', l: 'Contenido por compra (ej. 5000 yardas por cono; 1 si compras por metro)', t: 'number', req: 1 },
     { t: 'section', l: 'Existencias' },
     { k: 'stock_actual', l: 'Stock actual (en unidad de uso)', t: 'number' },
+    { k: 'stock_minimo', l: 'Stock mínimo (avisar al llegar a este nivel)', t: 'number' },
     { k: 'notas', l: 'Notas', t: 'textarea', full: 1 },
   ];
   const preview = (v) => {
@@ -70,7 +72,7 @@ async function edit(row) {
   const v = await formModal({ title: row ? 'Editar insumo' : 'Nuevo insumo', fields, values: row || { ...DEFAULTS, categoria: nombresCat[0] }, preview });
   if (!v) return;
   if (!(v.cantidad_por_compra > 0)) return toast('El contenido por compra debe ser mayor que 0', true);
-  const out = { ...v, nombre: v.nombre.trim(), notas: v.notas?.trim() || null, costo_unidad: Math.round((v.precio_compra / v.cantidad_por_compra) * 1e6) / 1e6 };
+  const out = { ...v, stock_minimo: v.stock_minimo ?? 0, nombre: v.nombre.trim(), notas: v.notas?.trim() || null, costo_unidad: Math.round((v.precio_compra / v.cantidad_por_compra) * 1e6) / 1e6 };
   try { row ? await S.inventario.update(row.id, out) : await S.inventario.create(out); toast('Guardado'); await load(); }
   catch (e) { toast(e.message, true); }
 }
