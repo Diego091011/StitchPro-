@@ -1,5 +1,5 @@
 import { cotizar } from '../calculator.js';
-import { PRENDAS, MEDIDAS_LABEL, MANGAS, VUELOS, piezas, metrosTela, aUnidad, norm } from './consumo.js';
+import { PRENDAS, ALT, MEDIDAS_LABEL, MANGAS, VUELOS, piezas, metrosTela, aUnidad, norm } from './consumo.js';
 import { NOCFG, insumoOptions } from './receta.js';
 import { $, $$, money, moneyU, esc, toast } from './utils.js';
 import * as S from '../services/index.js';
@@ -47,7 +47,7 @@ export function estimador({ cliente, inv, cfg, maq = [] }) {
     function dibujar() {
       const p = P(), tela = find(['tela']), forro = find(['forro']) || tela;
       $('#dyn', d).innerHTML = `<h4 class="sec" style="margin-top:16px">Medidas de ${esc(primero)} (cm)</h4>
-        <div class="form">${[...p.req, ...(p.opt || [])].map((k) => `<label>${MEDIDAS_LABEL[k]}${p.req.includes(k) ? '' : ' (opcional)'}<input type="number" min="0" step="any" data-m="${k}" value="${med[k] ?? ''}" class="${med[k] == null && p.req.includes(k) ? 'miss' : ''}" placeholder="${p.req.includes(k) ? 'falta' : ''}"></label>`).join('')}</div>
+        <div class="form">${[...p.req, ...(p.opt || [])].map((k) => `<label>${MEDIDAS_LABEL[k]}${p.req.includes(k) ? '' : ' (opcional)'}<input type="number" min="0" step="any" data-m="${k}" value="${med[k] ?? med[ALT[k]] ?? ''}" class="${(med[k] ?? med[ALT[k]]) == null && p.req.includes(k) ? 'miss' : ''}" placeholder="${p.req.includes(k) ? 'falta' : ''}"></label>`).join('')}</div>
         <h4 class="sec" style="margin-top:16px">Ajustes de la prenda</h4>
         <div class="form">
           <label>Ancho de la tela (cm)<input id="e-ancho" type="number" min="60" value="${cfg?.ancho_tela_cm ?? 150}"></label>

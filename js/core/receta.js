@@ -1,7 +1,7 @@
 import { cotizar } from '../calculator.js';
 import { money, moneyU, esc } from './utils.js';
 
-export const PRENDAS = ['Pantalón', 'Camisa', 'Blusa', 'Vestido', 'Falda', 'Chaqueta', 'Abrigo', 'Short', 'Otra'];
+export const PRENDAS = ['Pantalón', 'Camisa', 'Blusa', 'Vestido', 'Falda', 'Chaqueta', 'Abrigo', 'Short', 'Bata', 'Capa', 'Falda larga', 'Otra'];
 export const NOCFG = { sueldo_base: 0, horas_mes: 160, precio_kwh: 0, potencia_maquina_w: 0 };
 
 /** <optgroup> de insumos agrupados por categoría. */

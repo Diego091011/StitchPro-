@@ -10,14 +10,22 @@ await mountShell('clientes');
 
 /* Medidas agrupadas: [grupo, [[clave_en_jsonb, etiqueta], ...]] */
 const GRUPOS = [
-  ['Torso y busto', [['busto', 'Busto'], ['radio_busto', 'Radio de busto'], ['altura_busto', 'Altura de busto'], ['ancho_torax', 'Ancho de tórax'], ['ancho_espalda', 'Ancho de espalda'], ['hombro', 'Hombro'], ['costado', 'Costado'], ['escote', 'Escote'], ['cuello', 'Cuello']]],
-  ['Cintura y cadera', [['cintura', 'Cintura'], ['cadera', 'Cadera'], ['altura_cadera', 'Altura de cadera']]],
-  ['Talles', [['talle_delantero', 'Talle delantero'], ['talle_centro_delantero', 'Talle centro delantero'], ['talle_centro_posterior', 'Talle centro posterior'], ['largo_talle', 'Largo de talle'], ['largo_talle_posterior', 'Largo de talle posterior']]],
-  ['Largos', [['estatura', 'Estatura'], ['largo_blusa', 'Largo de blusa'], ['largo_falda', 'Largo de falda'], ['largo_pantalon', 'Largo de pantalón']]],
-  ['Contornos y anchos', [['ancho_bota', 'Ancho de bota'], ['contorno_rodilla', 'Contorno de rodilla'], ['contorno_puno', 'Contorno de puño'], ['contorno_ciza', 'Contorno de ciza']]],
+  ['Torso y busto', [['busto', 'Contorno de busto'], ['radio_busto', 'Radio de busto'], ['separacion_busto', 'Separación de busto'], ['altura_busto', 'Altura de busto'], ['ancho_torax', 'Ancho de tórax'], ['ancho_pecho', 'Ancho de pecho'], ['ancho_espalda', 'Ancho de espalda'], ['hombro', 'Hombro'], ['costado', 'Costado'], ['escote', 'Escote'], ['cuello', 'Contorno de cuello']]],
+  ['Cintura y cadera', [['cintura', 'Contorno de cintura'], ['cadera', 'Contorno de cadera'], ['altura_cadera', 'Altura de cadera']]],
+  ['Talles', [['talle_delantero', 'Talle frente'], ['talle_centro_delantero', 'Talle centro delantero'], ['talle_centro_posterior', 'Centro frente'], ['largo_talle', 'Centro atrás'], ['talle_atras', 'Talle atrás'], ['largo_talle_posterior', 'Largo de talle posterior']]],
+  ['Largos', [['estatura', 'Estatura'], ['largo_blusa', 'Largo de blusa'], ['largo_falda', 'Largo de falda'], ['largo_pantalon', 'Largo de pantalón'], ['largo_falda_larga', 'Largo de falda larga total'], ['largo_chaqueta', 'Largo de chaqueta'], ['largo_bata', 'Largo de bata'], ['largo_capa', 'Largo de capa'], ['largo_abrigo', 'Largo de abrigo']]],
+  ['Brazo y manga', [['contorno_brazo', 'Contorno de manga'], ['largo_interno_manga', 'Largo interno de manga']]],
+  ['Tiro y ciza', [['tiro', 'Tiro'], ['ciza_delantero', 'Ciza delantero'], ['ciza_posterior', 'Ciza posterior']]],
+  ['Contornos y anchos', [['ancho_bota', 'Contorno de bota'], ['contorno_rodilla', 'Contorno de rodilla'], ['contorno_puno', 'Contorno de puño'], ['contorno_ciza', 'Contorno de ciza']]],
 ];
 const MED = GRUPOS.flatMap(([, items]) => items);
 const RESUMEN = ['busto', 'cintura', 'cadera'];
+
+/* Se toman completas pero se usan divididas: ancho/contorno → mitad (½) · contornos de cuerpo → cuarta (¼) */
+const MITAD = ['contorno_brazo', 'contorno_puno', 'ancho_espalda', 'ancho_pecho', 'separacion_busto', 'ancho_torax'];
+const CUARTA = ['cuello', 'busto', 'cintura', 'cadera', 'contorno_rodilla', 'ancho_bota'];
+const f2 = (x) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 2 }).format(x);
+const frac = (k, v) => (MITAD.includes(k) ? { s: '½', v: v / 2 } : CUARTA.includes(k) ? { s: '¼', v: v / 4 } : null);
 
 const FIELDS = [
   { k: 'nombre_completo', l: 'Nombre completo', req: 1, full: 1 },
@@ -54,14 +62,18 @@ function render() {
 function ver(r) {
   const html = GRUPOS.map(([g, items]) => {
     const has = items.filter(([k]) => r.medidas?.[k] != null);
-    return has.length ? `<h4 class="sec">${g}</h4><div class="mgrid">${has.map(([k, l]) => `<div><span>${l}</span><b>${r.medidas[k]} cm</b></div>`).join('')}</div>` : '';
+    return has.length ? `<h4 class="sec">${g}</h4><div class="mgrid">${has.map(([k, l]) => { const f = frac(k, r.medidas[k]); return `<div><span>${l}</span><b>${r.medidas[k]} cm${f ? ` <small class="hint">· ${f.s} = ${f2(f.v)}</small>` : ''}</b></div>`; }).join('')}</div>` : '';
   }).join('') + (r.notas ? `<h4 class="sec">Notas</h4><p style="color:var(--tx)">${esc(r.notas)}</p>` : '');
   infoModal({ title: r.nombre_completo, html });
 }
 
 async function edit(row) {
   const values = { ...row, ...Object.fromEntries(MED.map(([k]) => ['m_' + k, row?.medidas?.[k]])) };
-  const v = await formModal({ title: row ? 'Editar cliente' : 'Nuevo cliente', fields: FIELDS, values });
+  const preview = (x) => {
+    const fr = MED.map(([k, l]) => [l, x['m_' + k] != null ? frac(k, x['m_' + k]) : null]).filter(([, f]) => f);
+    return fr.length ? `<div class="mgrid">${fr.map(([l, f]) => `<div><span>${l} (${f.s})</span><b>${f2(f.v)} cm</b></div>`).join('')}</div>` : 'Al escribir un contorno o ancho verás aquí su mitad (½) o su cuarta (¼).';
+  };
+  const v = await formModal({ title: row ? 'Editar cliente' : 'Nuevo cliente', fields: FIELDS, values, preview });
   if (!v) return;
   const medidas = { ...(row?.medidas || {}) };
   MED.forEach(([k]) => (v['m_' + k] == null ? delete medidas[k] : (medidas[k] = v['m_' + k])));
